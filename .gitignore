@@ -1,0 +1,16 @@
+# Ignore node packages
+node_modules/
+
+# Ignore environment variable secrets
+.env
+.env.local
+
+# Ignore all log files
+*.log
+
+# Except for this specific critical log
+!keep-this.log
+
+# Ignore operating system files
+.DS_Store
+Thumbs.db
