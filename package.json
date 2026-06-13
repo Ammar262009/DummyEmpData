@@ -9,9 +9,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
     "express": "^5.2.1",
+    "mysql2": "^3.22.5",
     "nodemon": "^3.1.14"
   }
 }

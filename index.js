@@ -1,51 +1,92 @@
-// You have to write a Node.js program to clear clutter inside of a directory and organize the contents of that directory into different folders
+// Generate a dummy data in this format in a collection called employees in a db called company
 
-// for example, these files become:
+// {
+//     name: "Harry",
+//     salary: 45000000,
+//     language: "Python",
+//     city: "New York",
+//     isManager: 1
+// }
 
-// 1. name.jpg
-// 2. name.png
-// 3. this.pdf 
-// 4. harry.zip
-// 5. Rohan.zip
-// 6. cat.jpg 
-// 7. harry.pdf
+// Generate 10 such records when a button called generate data is clicked!
+// Create an Express app with mongoose to acheive it
+// Everytime the button is clicked, you should clear the collection 
 
-// this: 
-// jpg/name.jpg, jpg/cat.jpg 
-// png/name.png 
-// pdf/this.pdf pdf/harry.pdf
-// zip/harry.zip zip/Rohan.zip
 
-import fs from 'fs'
-import path from 'path'
+const express = require('express');
+const sql = require('mysql2')
+const app = express();
+const port = 3000;
 
-const basepath = "C:\\Users\\HP\\OneDrive\\Documents\\Ammar pendrive\\Node js\\project-2"
 
-let files = await fs.readdirSync(basepath)
 
-let extarr = [
-    'png', 'jpg', 'jpeg', 'gif', 'svg', 'ico',     // Media
-    'mp4', 'mov', 'avi', 'mp3', 'wav',             // Audio/Video
-    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'pptx',   // Documents
-    'zip', 'rar', 'tar', 'gz', '7z', 'jar', 'war', // Archives
-    'apk', 'aar', 'iso', 'dmg'                     // Build Artifacts
-];
+const con = sql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "Hello@123",
+    database: 'employees'
+});
 
-let excludeext = ['json', 'js', 'node_modules', "gitignore"]
+const generateData = () => {
+    let namearr = ['harry', 'Ammar', 'Peter', 'Normon']
+    let languagearr = ['Python', 'Java', 'C', 'C++', 'Ruby']
+    let cityarr = ['Pune', 'New York', 'Mumbai', 'Delhi', 'Bangluru']
+    let salary = Math.floor(Math.random() * (98000 - 10000) + 10000)
+    let isManager;
+    let isManagerNum = Math.floor(Math.random() * (10 - 0) + 0)
 
-for (const item of files) {
-    let ext = item.split('.')[item.split('.').length - 1]
+    let name = namearr[Math.floor(Math.random() * namearr.length)]
+    let language = languagearr[Math.floor(Math.random() * languagearr.length)]
+    let city = cityarr[Math.floor(Math.random() * cityarr.length)]
 
-    if (!excludeext.includes(ext) && !extarr.includes(item)) {
-        if (fs.existsSync(path.join(basepath, ext))) {
-            fs.renameSync(path.join(basepath, item), path.join(basepath, ext, item))
-        }
-        else {
-            fs.mkdirSync(ext)
-        }
+
+    if (isManagerNum <= 5) {
+        isManager = 1
     }
     else {
-        console.log("js or node or json file found");
+        isManager = 0
     }
 
+    let arr = []
+    arr.push(name, salary, language, city, isManager)
+    return arr
 }
+
+let data = []
+const tenDummyData = () => {
+    for (let i = 0; i < 10; i++) {
+        data.push(generateData())
+    }
+
+    con.query('INSERT INTO employees (name, salary, language, city, isManager) VALUES ?', [data], function (err, result, fields) {
+        if (err) {
+            console.error('Error inserting data:', err);
+            return;
+        }
+        console.log('Rows affected:', result.affectedRows);
+    })
+    data = []
+}
+
+// console.log(data);
+
+
+// con.query('DELETE FROM employees', [data], function (err, result, fields) {
+//     if (err) {
+//         console.error('Error inserting data:', err);
+//         return;
+//     }
+//     console.log('Rows affected:', result.affectedRows);
+// })
+app.get('/', (req, res) => {
+    res.sendFile('templates/index.html', { root: __dirname });
+});
+
+app.post('/', (req, res) => {
+    let a =tenDummyData()
+    res.send(`results: ${a}`);
+});
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`);
+});
